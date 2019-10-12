@@ -2,7 +2,7 @@ package anthonyyaghi.geneticalgorithm;
 
 import com.badlogic.gdx.Game;
 
-public class MyGdxGame extends Game {
+public class StupidGame extends Game {
 
 	@Override
 	public void create () {

@@ -1,4 +1,4 @@
-package anthonyyaghi.geneticalgorithm;
+package anthonyyaghi.geneticalgorithm.utils;
 
 public class VisionValue {
     double left, center, right;
