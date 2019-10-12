@@ -19,6 +19,7 @@ Things currently working:
 Things I am working on:
 1. Camera control to zoom in/out and move the camera around the world
 2. Simulation time speed control
+3. Add new activation functions like ReLu, currently only a sigmoid function is defined
 
 Future plans might be:
 1. Add a menu to configure things (ANN agents, GA parameters, World) before starting the game
