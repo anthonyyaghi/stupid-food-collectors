@@ -3,6 +3,7 @@ package anthonyyaghi.geneticalgorithm;
 import anthonyyaghi.geneticalgorithm.agents.AgentConfig;
 import anthonyyaghi.geneticalgorithm.agents.NN;
 import anthonyyaghi.geneticalgorithm.algo.GA;
+import anthonyyaghi.geneticalgorithm.hud.StatsHud;
 import anthonyyaghi.geneticalgorithm.utils.CameraControls;
 import anthonyyaghi.geneticalgorithm.utils.GameConfig;
 import anthonyyaghi.geneticalgorithm.utils.ViewPortUtils;
@@ -31,7 +32,6 @@ public class World implements Screen {
     private final int NB_CREATURE = 120, NB_FOOD = 70;
     private final double MUTATION_RATE = 0.01d, SURVIVAL_RATE = 0.2d;
     private final float BULLET_SPEED = 500;
-    private final float LINE_SPACING = 100f;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -39,10 +39,11 @@ public class World implements Screen {
     private CameraControls cameraControls;
     private SpriteBatch batch;
     private BitmapFont font;
-    private ArrayList<Sprite> food, bullets, newFood, toRemoveFood, newBullets, toRemoveBullets;
+    private StatsHud hud;
 
+    private ArrayList<Sprite> food, bullets, newFood, toRemoveFood, newBullets, toRemoveBullets;
     private int atbScore, generation;
-    private ArrayList<NN> creatures;
+    private ArrayList<NN> population;
     private Texture foodTexture, topTexture, normalTexture, bulletTexture;
     private float timeElapsed;
 
@@ -51,17 +52,18 @@ public class World implements Screen {
     @Override
     public void show() {
         camera = new OrthographicCamera();
-        viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
+        viewport = new FitViewport(GameConfig.VIEW_WIDTH, GameConfig.VIEW_HEIGHT, camera);
         renderer = new ShapeRenderer();
         batch = new SpriteBatch();
+        hud = new StatsHud(batch);
         cameraControls = new CameraControls();
         cameraControls.setStartPosition(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2);
 
         gaEvolver = new GA(normalTexture, topTexture, SURVIVAL_RATE, MUTATION_RATE);
 
-        creatures = new ArrayList<NN>();
+        population = new ArrayList<NN>();
         for (int i = 0; i < NB_CREATURE; i++) {
-            creatures.add(new NN(AgentConfig.NEURAL_NET_STRUCT, GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT,
+            population.add(new NN(AgentConfig.NEURAL_NET_STRUCT, GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT,
                     AgentConfig.MOVE_SPEED, AgentConfig.ROT_SPEED));
         }
         atbScore = 0;
@@ -114,7 +116,7 @@ public class World implements Screen {
         batch.begin();
 
         //Drawing the creatures
-        for (NN creature : creatures) {
+        for (NN creature : population) {
             if (creature.getX() <= GameConfig.WORLD_WIDTH && creature.getY() <= GameConfig.WORLD_HEIGHT)
                 creature.drawCreature(batch);
         }
@@ -130,14 +132,11 @@ public class World implements Screen {
             if (b.getX() <= GameConfig.WORLD_WIDTH && b.getY() <= GameConfig.WORLD_HEIGHT)
                 b.draw(batch);
         }
-
-        font.getData().setScale(5);
-        font.setColor(0.0f, 1.0f, 0.0f, 1.0f);
-        font.draw(batch, generation + "# generation", GameConfig.WORLD_WIDTH / 2 - 300, GameConfig.WORLD_HEIGHT - 1 * LINE_SPACING);
-        font.draw(batch, "Population size: " + creatures.size(), GameConfig.WORLD_WIDTH / 2 - 300, GameConfig.WORLD_HEIGHT - 2 * LINE_SPACING);
-        font.draw(batch, "All time top individual: " + atbScore, GameConfig.WORLD_WIDTH / 2 - 300, GameConfig.WORLD_HEIGHT - 3 * LINE_SPACING);
-
         batch.end();
+
+        hud.update(generation, population.size(), atbScore);
+        batch.setProjectionMatrix(hud.getStage().getCamera().combined);
+        hud.getStage().draw();
     }
 
     private void updateWorld(float delta) {
@@ -146,7 +145,7 @@ public class World implements Screen {
         newBullets.clear();
         toRemoveBullets.clear();
 
-        for (NN creature : creatures) {
+        for (NN creature : population) {
             creature.processFreeze(delta);
 
             VisionValue foodVisionValue = getFoodVision(creature);
@@ -197,7 +196,7 @@ public class World implements Screen {
         if (timeElapsed > GA_INTERVAL) {
             timeElapsed = 0;
             generation++;
-            atbScore = gaEvolver.evolve(creatures, atbScore);
+            atbScore = gaEvolver.evolve(population, atbScore);
         }
     }
 
@@ -294,8 +293,8 @@ public class World implements Screen {
 
             //Then scale it by the current speed to get the velocity
             Vector2 velocity = new Vector2();
-            velocity.x = Bulletdirection.x * BULLET_SPEED / creatures.size();
-            velocity.y = Bulletdirection.y * BULLET_SPEED / creatures.size();
+            velocity.x = Bulletdirection.x * BULLET_SPEED / population.size();
+            velocity.y = Bulletdirection.y * BULLET_SPEED / population.size();
 
             b.setX(b.getX() + (velocity.x * delta));
             b.setY(b.getY() + (velocity.y * delta));
@@ -312,7 +311,7 @@ public class World implements Screen {
 
     private VisionValue getCreatureVision(NN creature) {
         VisionValue creatureVision = new VisionValue();
-        for (NN c : creatures) {
+        for (NN c : population) {
             if (c != creature) {
                 Vector2 otherPosition = new Vector2(c.getX() - creature.getX(), c.getY() - creature.getY());
                 Vector2 creatureHeadingDirection = creature.getDirection();

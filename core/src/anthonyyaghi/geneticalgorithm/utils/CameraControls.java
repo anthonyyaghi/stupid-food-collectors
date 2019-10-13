@@ -11,8 +11,8 @@ public class CameraControls {
     private static final int RIGHT_KEY = Input.Keys.RIGHT;
     private static final int UP_KEY = Input.Keys.UP;
     private static final int DOWN_KEY = Input.Keys.DOWN;
-    private static final int ZOOM_IN = Input.Keys.SHIFT_RIGHT;
-    private static final int ZOOM_OUT = Input.Keys.CONTROL_RIGHT;
+    private static final int ZOOM_OUT = Input.Keys.SHIFT_RIGHT;
+    private static final int ZOOM_IN = Input.Keys.CONTROL_RIGHT;
     private static final int RESET = Input.Keys.ENTER;
 
 
