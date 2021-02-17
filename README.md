@@ -17,7 +17,7 @@ Things currently working:
 5. The dna of an agent can be saved and loaded to/from a serializable file
 
 Things I am working on:
-1. Camera control to zoom in/out and move the camera around the world
+1. ~~Camera control to zoom in/out and move the camera around the world~~
 2. Simulation time speed control
 3. Add new activation functions like ReLu, currently only a sigmoid function is defined
 
@@ -25,3 +25,9 @@ Future plans might be:
 1. Add a menu to configure things (ANN agents, GA parameters, World) before starting the game
 1. Put the main logic behind an API so that other simple games with new rules and agents can be created quickly
 2. Upgrade the graphics
+
+### Controls
+* Arrow keys to move the camera
+* Right **SHIFT** and **CTRL** to zoom in and out
+
+![](demo.gif)
